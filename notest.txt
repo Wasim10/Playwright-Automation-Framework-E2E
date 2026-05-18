@@ -1,0 +1,637 @@
+YT Video Following
+https://www.youtube.com/watch?v=E6Tomhi8wyM&list=PL83cimSRP5ZnS1N4TIWME7wYRr2slZtlD
+
+
+STEPS TO FOLLOW
+
+1)
+Add playwright extension in vs code
+
+2) cmd + shift + p
+install playwright
+
+3) first goto playwright.config.ts to configure report
+
+  reporter: 'html',
+
+change it to 
+  reporter: [['html',{open: 'always'}]],
+
+  --
+  trace: 'on-first-retry',
+
+  change it to
+   trace: 'retain-on-failure',
+
+   ---
+   add this as well
+       screenshot: 'only-on-failure',
+
+--
+
+add this as well
+
+ video: 'retain-on-failure',
+
+ ---
+
+ Done this PL83cimSRP5ZnS1N4TIWME7wYRr2slZtlD00:00:00 - Introduction Of Playwright Framework
+09:37 - Pre-requisite and Playwright Installation
+15:18 - Playwright Configurations (HTML Reporter , Trace, Screenshot, video)
+
+=========================================================
+
+Start
+25:35 - Practice Website Credit : OrangHRM
+https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+
+26:25 - Page Object Model Integration
+
+4) create new folder in project and name is pages
+create a new file inside this page folder with name LoginPage.ts
+
+i made a class inside this file and all the locators of login page,
+username, password, button
+import { Locator, Page } from "@playwright/test";
+
+export class LoginPage {
+    readonly page: Page;
+    readonly userNameInput: Locator;
+    readonly passwordInput: Locator;
+    readonly loginButton: Locator;
+
+    constructor(page: Page) {
+        this.page = page;
+        this.userNameInput = page.getByRole('textbox', { name: 'Username' });
+        this.passwordInput = page.getByRole('textbox', { name: 'Password' });
+        this.loginButton = page.getByRole('button', { name: 'Login' });
+    }
+}
+
+To get the locator we use Playwright - Pick Loactor which help us easily get all these locators
+
+5) Now I will create a methods for all these locators to perform a Authentication
+
+To access site
+   async gotoOrangeHRM() {
+        await this.page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+    }
+
+6) Now to access the locators
+
+
+    async loginOrangeHrm(username: string, password: string) {
+        await this.userNameInput.fill(username);
+        await this.passwordInput.fill(password);
+        await this.loginButton.click();
+    }
+
+
+
+
+
+
+LoginPage Completed
+
+
+
+
+===========================================================
+
+
+57:22 - Page Object Model with Fixtures Integration
+
+Our first Fixture for LoginPage 
+
+1)create a new folder in project  with name fixtures
+create a new file inside the fixtures folder and name it pom-fixtures.ts
+
+2) write code for  the LoginPage fixture 
+import {test as baseTest} from "@playwright/test";
+import { LoginPage } from "../pages/LoginPage";
+
+/** Type definition for the custom test fixtures, specifying that the fixture will provide an instance of the LoginPage class. */
+type PomFixturesType = {
+    loginPage: LoginPage;
+}
+/** This file defines a custom test fixture for Playwright tests, providing an instance of the LoginPage class to be used in test cases. */
+export const test = baseTest.extend<PomFixturesType>({
+    loginPage: async ({ page }, use) => {
+       await use(new LoginPage(page));
+    }
+});
+
+3) inside the tests folder , create file temp-test.spec.ts to test the above fixture and login functioanlity
+add write the following code 
+
+import {test as baseTest, test} from '../fixtures/pom-fixture';
+import { LoginPage } from '../pages/LoginPage';
+
+test('Sample Test', async ({ page, loginPage }) => {
+
+  await loginPage.gotoOrangeHRM();
+  await loginPage.loginOrangeHrm('Admin', 'admin123');
+});
+
+
+4) IMP
+to run and check 
+write this in vs terminal 
+npx playwright test tests/example.spec.ts
+
+HURRAY! All passed. 
+
+
+===========================================================
+
+01:18:39 - Handle Multiple Environments
+
+1) to handle Multiple Environmentsw we need .env package
+search dotenv npm on google
+https://www.npmjs.com/package/dotenv
+
+
+Run this in vs code project terminal -> npm i dotenv
+
+to verify its install goto package.json file 
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+
+  its installed...
+
+2) we need another package as well
+
+https://www.npmjs.com/package/cross-env
+npm i cross-env
+
+
+3) create new folder in main project with name env-files
+creat 2 files inside this
+-> one for dev env '.env.dev'
+other -> '.env.dmeo'
+
+4) add following code , it based on Environments in both files for now
+BASE_URL = 'https://opensource-demo.orangehrmlive.com/';
+USER_NAME = 'Admin';
+PASSWORD = 'admin123';
+
+5) now goto playwright.config.ts file
+Add below code on top after import
+
+import dotenv from 'dotenv';
+
+
+// Load environment variables from the appropriate .env file based on NODE_ENV
+dotenv.config({
+  path: process.env.ENV_NAME ? `./env-files/.env.${process.env.ENV_NAME}` : `./env-files/.env.demo`
+})
+
+6) Run in vs code terminal
+Waseem@MacBook-Pro PlaywrightAutoFrameworkEndtoEnd % 
+ENV_NAME=dev npx playwright test
+
+
+WORKS perfectly , like the we can handle Multiple Environments testing.
+
+7) Now using cross-env package , lets try with another way
+goto package.json file and the Environments code in scripts section
+
+
+we have defined the commands to run and also a browser for specfic Environments
+  "scripts": {
+    "test_demo": "cross-env ENV_NAME=demo npx playwright test",
+    "test_dev": "cross-env ENV_NAME=dev npx playwright test",
+    "test_demo_chrome": "cross-env ENV_NAME=demo npx playwright test --project=chromium --headed",
+    "test_demo_firefox": "cross-env ENV_NAME=demo npx playwright test --project=firefox --headed",
+    "test_demo_chrome_headless": "cross-env ENV_NAME=demo npx playwright test --project=chromium",
+    "test_demo_firefox_headless": "cross-env ENV_NAME=demo npx playwright test --project=firefox"
+  },
+  -- headed means to see the test executionn on browser.
+  -- headless means in terminal without launching a browser.
+
+8) Run in terminal
+npm run test_demo_chrome
+
+WORKS perfectly....
+
+
+
+==========================================================
+01:45:08 - Encrypt and Decrypt Data
+
+When pushing code to github there are sensitive data e.g credentaisl login /user name password.
+to Encrypt them we use the followig way .
+
+1) goto and install the below package 
+https://www.npmjs.com/package/crypto-js
+copy the command 
+npm i crypto-js
+
+paste in vs code terminal
+
+2) create new folder in proejct with name utils
+inside that folder create a new file CommonUtils.ts
+
+inside this file add the folling code, which is Encryptoing the data or variables we provided 
+
+import cryptoJs from 'crypto-js';   
+
+export default class CommonUtils {
+    
+    //   * Encrypts a given string using AES encryption with a predefined secret key.     
+
+    private secretKey: string;
+/**
+ * Initializes the CommonUtils class by setting the secret key for encryption. The secret key is retrieved from the environment variables, and if it is not provided, an error is thrown to ensure that the encryption functionality can work properly.
+ */
+    constructor() {
+        this.secretKey = process.env.SECRET_KEY ? process.env.SECRET_KEY : '';
+
+        if(process.env.SECRET_KEY) {
+            this.secretKey = process.env.SECRET_KEY;
+        } else {
+            throw new Error('Please provide the SECRET KEY in the environment variables');
+        }
+
+    }
+    /**
+     * Encrypts a given string using AES encryption with a predefined secret key.
+     * @param data The string to encrypt.
+     * @returns The encrypted string.
+     */
+    public encryptData(data: string) {
+        const encryptedData =  cryptoJs.AES.encrypt(data, this.secretKey).toString();     
+        console.log('Encrypted Data: ', encryptedData.toString()); 
+        return encryptedData;
+    }
+
+
+    public decryptData(encdata: string) {
+     const decryptedBytes = cryptoJs.AES.decrypt(encdata, this.secretKey).toString(cryptoJs.enc.Utf8);
+   //  console.log('Decrypted Data: ', decryptedBytes);
+     return decryptedBytes;
+    }
+    
+    }
+
+
+4) Now to call or use these encrypt, decrypt methods
+goto terminal and run the project using encrypted way 
+
+Waseem@MacBook-Pro PlaywrightAutoFrameworkEndtoEnd % SECRET_KEY=iknow npm run  test_demo_chrome_headless
+
+RUN succesfuly 
+and one key generated 
+'iknow'
+
+Encrypted Data:  U2FsdGVkX1/6yLUrcnNOgkfD17H+VQLVj1Avio2A6kE=.  
+
+5) now for testing use this encrypted as our username
+
+goto-> env-files -> .env.demo and .env.dev
+replace 
+this
+
+USER_NAME = 'Admin';
+with  the key printed
+
+
+use key without '' quotes
+USER_NAME = U2FsdGVkX1/6yLUrcnNOgkfD17H+VQLVj1Avio2A6kE=;
+
+and make few changes to temp-test.spec.ts file
+
+add this
+
+  const commonUtilsObj = new CommonUtils();
+  commonUtilsObj.encryptData('admin123');
+
+  and comment out the 
+
+    // console.log(process.env.BASE_URL);
+  // console.log(process.env.USER_NAME);
+  // console.log(process.env.PASSWORD);
+
+
+6) Run again the encrypted password will be display
+Waseem@MacBook-Pro PlaywrightAutoFrameworkEndtoEnd % SECRET_KEY=iknow npm run  test_demo_chrome_headless
+
+Works perfectly...
+
+an encyrpted key printed,
+
+now copy this key and use it as our password
+
+7) goto utils .env.dev and .env.demo
+files and replace password with -> U2FsdGVkX1/4IKS9LcazA9e/4J7ISnUVKDiLR9+js8I=
+
+now goto temp-test.spec.ts file and comment out this code 
+ // commonUtilsObj.encryptData('admin123');
+
+ 8) NOW We Will decrypt the Data
+ add the followig decryption code in temp-test.spec.ts file
+     console.log(commonUtilsObj.decryptData(process.env.USER_NAME!));
+  console.log(commonUtilsObj.decryptData(process.env.PASSWORD!));
+
+9)     Run and check
+SECRET_KEY=iknow npm run  test_demo_chrome_headless
+
+Works perfectly. both username and password Descrypted...
+
+
+
+
+10) **IMPORTANT *** Now lets use above in our orange HRM login page
+
+Goto temp-test.spec.ts
+and comment out this code
+  // console.log(commonUtilsObj.decryptData(process.env.USER_NAME!));
+  // console.log(commonUtilsObj.decryptData(process.env.PASSWORD!));
+  and add that 
+
+const decryptedUserName = commonUtilsObj.decryptData(process.env.USER_NAME!);
+const decryptedPassword = commonUtilsObj.decryptData(process.env.PASSWORD!);
+
+  await loginPage.gotoOrangeHRM();
+  await loginPage.loginOrangeHrm(decryptedUserName, decryptedPassword);
+
+  it will run the project in browser
+
+11) Run and check 
+Waseem@MacBook-Pro PlaywrightAutoFrameworkEndtoEnd % SECRET_KEY=iknow npm run  test_demo_chrome
+
+Works perfectly...
+
+
+**Updating above using fixtures**
+12) create a new file in fixtures folder with name common-fixtures.ts
+
+add following code in common-fixtures.ts file
+import {test as baseTest} from '../fixtures/pom-fixture';
+import CommonUtils from '../utils/CommonUtils';
+
+type CommonFixturesType = {
+    commonUtils: CommonUtils;
+}
+
+baseTest.extend<CommonFixturesType>({
+    commonUtils: async ({ }, use) => {
+        await use(new CommonUtils());
+    }
+});
+
+13) Now goto temo-test.spec.ts file 
+
+and remove 
+import CommonUtils from '../utils/CommonUtils';
+and this
+  const commonUtilsObj = new CommonUtils();
+
+import  this
+ import { test} from '../fixtures/common-fixture';   
+
+  beacuse we will directly using our common fixtures
+
+  this is the updated temp-test.spec.ts file code
+
+  import { test} from '../fixtures/common-fixture';   
+
+
+
+
+
+test('Sample Test', async ({ page, loginPage, commonUtils }) => {
+  //using for encrypting and decrypting data using CommonUtils class
+
+ const decryptedUserName = commonUtils.decryptData(process.env.USER_NAME!);
+const decryptedPassword = commonUtils.decryptData(process.env.PASSWORD!);
+
+  await loginPage.gotoOrangeHRM();
+  await loginPage.loginOrangeHrm(decryptedUserName, decryptedPassword);
+
+});
+
+
+
+
+
+  
+
+
+========================================================
+
+
+02:35:44 - Save & Reuse Authentication State
+
+1) Right click on tests folder and create new file with name global.setup.ts
+
+Add the following code inside the file
+
+import { test } from '../fixtures/common-fixture';
+import {expect} from '@playwright/test';
+
+
+
+test('Global setup for auto login', async ({ page, loginPage, commonUtils }) => {
+  const decryptedUserName = commonUtils.decryptData(process.env.USER_NAME!);
+  const decryptedPassword = commonUtils.decryptData(process.env.PASSWORD!);
+
+  await loginPage.gotoOrangeHRM
+  await loginPage.loginOrangeHrm(decryptedUserName, decryptedPassword);
+  await page.waitForURL(`${process.env.BASE_URL}/web/index.php/dashboard/index`);
+
+
+});
+
+2) small change in LoginPage.ts
+
+  async gotoOrangeHRM() {
+        await this.page.goto(`${process.env.BASE_URL}/web/index.php/auth/login`);
+    }
+
+3) To check we are landed on dashboard we have to create one dashboard page
+
+goto->pages->create new page with name DashboardPage.ts
+
+add the following code
+
+import { Locator, Page } from '@playwright/test';
+
+/**
+ * DashboardPage class represents the dashboard page of the OrangeHRM application
+ */
+
+export class DashboardPage {
+    readonly page: Page;
+    readonly dashboardHeader: Locator;
+
+    /** Constructor to initialize the DashboardPage class with the Playwright Page object and define locator for the dashboard header */
+    constructor(page: Page) {
+        this.page = page;
+        this.dashboardHeader = page.getByRole('heading', { name: 'Dashboard' });
+    }
+
+    /** Method to verify if the dashboard header is visible on the page */
+    async isDashboardHeaderVisible(): Promise<boolean> {
+        return await this.dashboardHeader.isVisible();
+    }
+}
+
+4) Whenever create a new page , dont forget to add it in fixture 
+
+goto->fixtures->pom-fixture.ts file
+
+import new page DashboardPage
+import { DashboardPage } from "../pages/DashboardPage";
+
+then add locator
+ readonly dashboardHeader: Locator;
+
+ then add this in const
+     dashboardPage: async ({ page }, use) => {
+        await use(new DashboardPage(page));
+    }
+
+5) Now we will be using that ficture in our global.setup.ts file
+add dashboardPage 
+and this code in end to use
+  await expect(dashboardPage.dashboardHeader).toHaveText('Dashboard');
+
+below that use that
+
+  await page.context().storageState({ path: './playwright-state/.auth/auth.json' });
+
+
+6) now goto playwright.config.ts file to load the state and inform our dependencies
+goto project array and one more array
+
+add this
+
+    {
+      name: 'setpup',
+      testMatch: 'global.setup.ts',
+    },
+
+    then we need to tell every  browser to take this, add below code
+
+    dependencies: ['setpup'],
+
+
+    like this ->
+
+      projects: [
+    {
+      name: 'setpup',
+      testMatch: 'global.setup.ts',
+    },
+    {
+      name: 'chromium',
+      dependencies: ['setpup'], // add for all dependencies
+      use: { ...devices['Desktop Chrome'],
+      storageState: './playwright-user-state/.auth/auth.json'. // add for all dependencies
+       },
+
+
+  with this whole 6 steps we can login to application and save the user Authentication state 
+
+  last final remove below line from temp-test.spec.ts , beacuse we dont need to login again 
+    await loginPage.loginOrangeHrm(decryptedUserName, decryptedPassword);
+    also remove or comment these as well
+
+//  const decryptedUserName = commonUtils.decryptData(process.env.USER_NAME!);
+// const decryptedPassword = commonUtils.decryptData(process.env.PASSWORD!);
+
+instead add this to check we are logged in 
+
+
+  through this way we dont need to login to application again and again
+
+
+  7) Run 
+  Waseem@MacBook-Pro PlaywrightAutoFrameworkEndtoEnd % SECRET_KEY=iknow npm run  test_demo_chrome
+
+  Works perfectly.....
+
+=======================================================
+03:08:09 - Hooks (beofreEach, afterEach) in Playwright
+
+add Multiple tests in temp-test.spec.ts  ,
+hooks used for a purpose to run something before test or after test. 
+
+
+1) what i did i added before each hook, because i was repeating to open browser 3 times and for each class/function ther was 
+a same code.
+so i make a hook and inserted this code and comment for all Over
+
+// resusablity 
+test.beforeEach('Before Each Test', async ({ page, loginPage }) => {
+  await loginPage.gotoOrangeHRM();
+  console.log('Before Each Test Run it..');
+});
+
+2) I wants to logout user after every test run , so i have to use after hook
+for that i have to make new class for logout functioanlity
+
+3) goto page folder, create a new page with name UserPage.ts
+
+add following code
+
+import { Page,Locator  } from '@playwright/test';
+
+// This class represents the User Page of the application, 
+// providing methods to interact with user-related functionalities such as logging out.
+export class UserPage {
+    readonly page: Page;
+    readonly userMenuButton: Locator;
+    readonly logoutButton: Locator;
+
+// Initialize the page and locators in the constructor
+    constructor(page: Page) {
+        this.page = page;
+        this.userMenuButton = page.locator('.oxd-userdropdown-name');
+        this.logoutButton = page.getByRole('menuitem', { name: 'Logout' });
+    }
+
+// Method to perform logout action
+    async logout() {
+        await this.userMenuButton.click();
+        await this.logoutButton.click();
+    }
+}
+
+4) Now add this UserPage.ts in our fixture
+goto-> pom-fixture.ts 
+
+add the UserPage fixture and declare it
+
+5) Now goto temp-test.spec.ts file to compelete the logout functioanlity
+test.afterEach('After Each hook Test', async ({ page, userPage }) => {
+  await userPage.logout();  
+});
+
+=====================================================ß
+
+
+
+03:21:22 - Fixtures Over (beforeEach, afterEach) Hooks
+
+
+
+
+
+======================================================
+03:41:19 - Automation Script Creation Example 1/ Read and Use Test Data from JSON file
+04:31:03 - UI Mode Integration
+04:39:07 - Automation Script creation Example 2
+05:18:26 - Timeout and Assertion Timeout Modification
+05:28:15 - Why Independent Tests ?
+05:31:37 - Tags and Annotations Integration
+05:55:18 - Test Step integration
+06:04:58 - Describe Block Integration
+06:13:57 - Visual Testing Integration
+06:40:21 - Rerun Last Failed Tests
+06:51:11 - Understanding of HTML Reporter, Screenshot, Trace, Video
+07:03:56 - Upload Framework On Git Repository
+07:09:11 - Playwright Framework Flowchart
+07:26:29 - Recap
