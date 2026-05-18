@@ -617,11 +617,87 @@ test.afterEach('After Each hook Test', async ({ page, userPage }) => {
 03:21:22 - Fixtures Over (beforeEach, afterEach) Hooks
 
 
+To use fixture over hooks, we have to comment out our above hooks code first.
 
+1) create new file in fixtures folder with name hooks-fixture.ts
+
+we wil have to create 2 fixtures, 1 first visiting the site url, second for logout
+1 fixture is to replace before hook, and 2nd fixture is to replace tht after hook
+
+put followig code in this file
+import { test as baseTest } from './common-fixture';
+
+type HooksFixtureType = {
+  gotourl: void;
+  logout: void;
+};
+
+export const test = baseTest.extend<HooksFixtureType>({ // ← added export const test =
+  gotourl: async ({ loginPage }, use) => {
+    await loginPage.gotoOrangeHRM();
+    await use();
+  },
+
+  logout: async ({ userPage }, use) => { // ← implemented logout
+    await use();
+    // teardown — runs after test
+    await userPage.logout();
+  }
+}); 
+
+
+2) Now we can see how to use these fixtures 
+goto-> temp-test.specs.ts 
+
+import the created file
+import { test} from '../fixtures/hooks-fixture';   
+
+and update the code
+
+import { test} from '../fixtures/hooks-fixture';   
+import { expect } from '@playwright/test';
+
+
+
+test('Sample Test 1', async ({ page, gotourl }) => {
+
+  console.log(await page.title());
+
+});
+test('Sample Test 2', async ({ page, gotourl }) => {
+  await expect(await page.title()).toBe('OrangeHRM');
+
+});
+
+test('Sample Test 3', async ({ page, gotourl , logout}) => {
+  await expect(await page.title()).toBe('OrangeHRM');
+
+});
+
+
+
+
+
+
+3) Run and check
+SECRET_KEY=iknow npm run  test_demo_chrome
+
+works perfectly...
 
 
 ======================================================
 03:41:19 - Automation Script Creation Example 1/ Read and Use Test Data from JSON file
+
+
+
+
+
+
+
+
+
+
+=====================================================
 04:31:03 - UI Mode Integration
 04:39:07 - Automation Script creation Example 2
 05:18:26 - Timeout and Assertion Timeout Modification
