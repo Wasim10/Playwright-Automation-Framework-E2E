@@ -5,16 +5,19 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * *'  # nightly run
 
 jobs:
-  test:
+
+  # ── JOB 1 — Run on GitHub Actions (Free) ──
+  test-github:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4        # ← v4 not v5
-      
-      - uses: actions/setup-node@v4      # ← v4 not v5
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
@@ -22,10 +25,10 @@ jobs:
         run: npm ci
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium firefox
 
-      - name: Run Playwright tests
-        run: ENV_NAME=demo npx playwright test
+      - name: Run tests on GitHub
+        run: ENV_NAME=demo npx playwright test --project=chromium --project=firefox
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -35,6 +38,40 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: github-playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  # ── JOB 2 — Run on Azure Playwright Workspaces ──
+  test-azure:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium firefox
+
+      - name: Run tests on Azure
+        run: ENV_NAME=demo npx playwright test --config=playwright.service.config.ts --workers=4
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          PLAYWRIGHT_SERVICE_ACCESS_TOKEN: ${{ secrets.PLAYWRIGHT_SERVICE_ACCESS_TOKEN }}
+          PLAYWRIGHT_SERVICE_URL: ${{ secrets.PLAYWRIGHT_SERVICE_URL }}
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: azure-playwright-report
           path: playwright-report/
           retention-days: 30
