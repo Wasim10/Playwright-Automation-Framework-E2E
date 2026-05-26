@@ -32,5 +32,6 @@ export class LoginPage {
         await this.userNameInput.fill(username);
         await this.passwordInput.fill(password);
         await this.loginButton.click();
+         await this.page.waitForLoadState('networkidle');
     }
 }

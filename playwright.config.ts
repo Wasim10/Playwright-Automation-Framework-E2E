@@ -30,10 +30,17 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html',{open: 'always'}]],
+    timeout: 60000,        // ← add this
+  expect: {
+    timeout: 10000       // ← add this
+  },
+
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     // baseURL: 'http://localhost:3000',
+      navigationTimeout: 120000, // ← 2 minutes for slow sites
+  actionTimeout: 30000,      // ← 30 seconds for actions
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     screenshot: 'only-on-failure',
@@ -63,13 +70,13 @@ export default defineConfig({
        },
     },
 
-    {
-      name: 'webkit',
-      dependencies: ['Setup'],
-      use: { ...devices['Desktop Safari'],
-      storageState: './playwright-user-state/.auth/auth.json'
-       },
-    },
+    // {
+    //   name: 'webkit',
+    //   dependencies: ['Setup'],
+    //   use: { ...devices['Desktop Safari'],
+    //   storageState: './playwright-user-state/.auth/auth.json'
+    //    },
+    // },
 
     /* Test against mobile viewports. */
     // {

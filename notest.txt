@@ -689,11 +689,9 @@ works perfectly...
 03:41:19 - Automation Script Creation Example 1/ Read and Use Test Data from JSON file
 
 
+1) create new file in tests folder with name login-module.spec.ts
 
-
-
-
-
+ 
 
 
 
