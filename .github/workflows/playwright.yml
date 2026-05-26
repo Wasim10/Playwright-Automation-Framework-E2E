@@ -5,8 +5,6 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  schedule:
-    - cron: '0 0 * * *'
 
 jobs:
 
@@ -42,40 +40,40 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  # ── JOB 2 — Azure ──
-  test-azure:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # ── JOB 2 — Azure (commented out to save credits) ──
+  # test-azure:
+  #   timeout-minutes: 60
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: lts/*
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox
+  #     - name: Install Playwright Browsers
+  #       run: npx playwright install --with-deps chromium firefox
 
-      - name: Run tests on Azure
-        run: ENV_NAME=demo npx playwright test --config=playwright.service.config.ts --workers=4
-        env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          USER_NAME: ${{ secrets.USER_NAME }}
-          PASSWORD: ${{ secrets.PASSWORD }}
-          PLAYWRIGHT_SERVICE_URL: ${{ secrets.PLAYWRIGHT_SERVICE_URL }}
+  #     - name: Run tests on Azure
+  #       run: ENV_NAME=demo npx playwright test --config=playwright.service.config.ts --workers=4
+  #       env:
+  #         BASE_URL: ${{ secrets.BASE_URL }}
+  #         SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  #         USER_NAME: ${{ secrets.USER_NAME }}
+  #         PASSWORD: ${{ secrets.PASSWORD }}
+  #         PLAYWRIGHT_SERVICE_URL: ${{ secrets.PLAYWRIGHT_SERVICE_URL }}
 
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: azure-playwright-report
-          path: playwright-report/
-          retention-days: 30
+  #     - uses: actions/upload-artifact@v4
+  #       if: ${{ !cancelled() }}
+  #       with:
+  #         name: azure-playwright-report
+  #         path: playwright-report/
+  #         retention-days: 30
