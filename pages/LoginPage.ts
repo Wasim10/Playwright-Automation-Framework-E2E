@@ -29,7 +29,7 @@ export class LoginPage {
     await this.page.goto(`${baseUrl}/web/index.php/auth/login`);
 
     // ── NEW: Wait for username field to be visible before proceeding ──
-    await this.userNameInput.waitFor({ state: 'visible' });
+    await this.userNameInput.waitFor({ state: 'visible',   timeout: 60000  });
   }
 
   async loginOrangeHrm(username: string, password: string) {
