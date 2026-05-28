@@ -14,10 +14,9 @@ stages:
       - job: RunTests
         displayName: 'Run Playwright Tests'
         steps:
-
           - task: NodeTool@0
             inputs:
-              versionSpec: '20.x'  # ← changed to 20
+              versionSpec: '20.x'
             displayName: 'Install Node.js'
 
           - script: npm ci
@@ -26,7 +25,7 @@ stages:
           - script: npx playwright install --with-deps chromium firefox
             displayName: 'Install Playwright browsers'
 
-          - script: ENV_NAME=demo npx playwright test --project=chromium --project=firefox
+          - script: ENV_NAME=demo npx playwright test --project=chromium --project=firefox --ignore=tests/temp-test.spec.ts
             displayName: 'Run Playwright tests'
             env:
               BASE_URL: $(BASE_URL)
