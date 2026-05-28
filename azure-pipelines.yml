@@ -58,3 +58,17 @@ stages:
               targetPath: 'test-results'
               artifact: 'test-results'
               publishLocation: 'pipeline'
+
+          - script: |
+              npm install -g allure-commandline
+              npx allure generate allure-results --clean
+            displayName: 'Generate Allure report'
+            condition: always()
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Upload Allure report'
+            condition: always()
+            inputs:
+              targetPath: 'allure-report'
+              artifact: 'allure-report'
+              publishLocation: 'pipeline'

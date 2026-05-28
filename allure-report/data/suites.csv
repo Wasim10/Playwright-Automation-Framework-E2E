@@ -1,0 +1,8 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","61721","Sample Test 3","firefox","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
+"","85356","Sample Test 1","chromium","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
+"","75275","Sample Test 3","chromium","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
+"","19348","Global setup for auto login","Setup","2026-05-28","passed","2026-05-28","","global.setup.ts","",""
+"","78818","Sample Test 2","chromium","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
+"","80755","Sample Test 1","firefox","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
+"","81022","Sample Test 2","firefox","2026-05-28","failed","2026-05-28","","temp-test.spec.ts","",""
