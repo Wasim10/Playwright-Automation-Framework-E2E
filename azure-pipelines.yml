@@ -7,17 +7,6 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  - name: BASE_URL
-    value: $(BASE_URL)
-  - name: SECRET_KEY
-    value: $(SECRET_KEY)
-  - name: USER_NAME
-    value: $(USER_NAME)
-  - name: PASSWORD
-    value: $(PASSWORD)
-    
-
 stages:
   - stage: Test
     displayName: 'Playwright Tests'
@@ -28,7 +17,7 @@ stages:
 
           - task: NodeTool@0
             inputs:
-              versionSpec: '18.x'
+              versionSpec: '20.x'  # ← changed to 20
             displayName: 'Install Node.js'
 
           - script: npm ci
@@ -44,7 +33,7 @@ stages:
               SECRET_KEY: $(SECRET_KEY)
               USER_NAME: $(USER_NAME)
               PASSWORD: $(PASSWORD)
-              ENV_NAME: demo 
+              ENV_NAME: demo
 
           - task: PublishTestResults@2
             displayName: 'Publish test results'
