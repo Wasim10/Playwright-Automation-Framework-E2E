@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 // Load environment variables from the appropriate .env file based on NODE_ENV
 dotenv.config({
-  path: process.env.ENV_NAME ? `./env-files/.env.${process.env.ENV_NAME}` : `./env-files/.env.demo`
+  path: process.env.ENV_NAME ? `./env-files/.env.${process.env.ENV_NAME}` : `./env-files/.env.demo`,   override: true 
 })
 
 /**

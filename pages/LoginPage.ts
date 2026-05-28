@@ -4,34 +4,38 @@ import { Locator, Page } from "@playwright/test";
  * LoginPage class represents the login page of the OrangeHRM application
  */
 export class LoginPage {
-    readonly page: Page;
-    readonly userNameInput: Locator;
-    readonly passwordInput: Locator;
-    readonly loginButton: Locator;
+  readonly page: Page;
+  readonly userNameInput: Locator;
+  readonly passwordInput: Locator;
+  readonly loginButton: Locator;
 
-    /** Constructor to initialize the LoginPage class with the Playwright Page object and define locators for username, password, and login button */
-    constructor(page: Page) {
-        this.page = page;
-        this.userNameInput = page.getByRole('textbox', { name: 'Username' });
-        this.passwordInput = page.getByRole('textbox', { name: 'Password' });
-        this.loginButton = page.getByRole('button', { name: 'Login' });
-    }
+  constructor(page: Page) {
+    this.page = page;
+    this.userNameInput = page.getByRole('textbox', { name: 'Username' });
+    this.passwordInput = page.getByRole('textbox', { name: 'Password' });
+    this.loginButton = page.getByRole('button', { name: 'Login' });
+  }
 
-    /** Method to navigate to the OrangeHRM login page */
+  async gotoOrangeHRM() {
 
-    async gotoOrangeHRM() {
-        
-        await this.page.goto(`${process.env.BASE_URL}/web/index.php/auth/login`);
-    }
+    // ── NEW: Fallback URL if BASE_URL env variable is not set ──
+    const baseUrl = process.env.BASE_URL || 
+      'https://opensource-demo.orangehrmlive.com';
+    
+    // ── NEW: Debug log to verify URL in pipeline logs ──
+    console.log('BASE_URL:', baseUrl);
+    
+    // ── UPDATED: Using baseUrl variable instead of process.env.BASE_URL directly ──
+    await this.page.goto(`${baseUrl}/web/index.php/auth/login`);
 
-    /** Method to perform login action on OrangeHRM application
-     * @param username - The username to be entered in the login form
-     * @param password - The password to be entered in the login form
-     */
-    async loginOrangeHrm(username: string, password: string) {
-        await this.userNameInput.fill(username);
-        await this.passwordInput.fill(password);
-        await this.loginButton.click();
-         await this.page.waitForLoadState('networkidle');
-    }
+    // ── NEW: Wait for username field to be visible before proceeding ──
+    await this.userNameInput.waitFor({ state: 'visible' });
+  }
+
+  async loginOrangeHrm(username: string, password: string) {
+    await this.userNameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
+    await this.page.waitForLoadState('networkidle');
+  }
 }

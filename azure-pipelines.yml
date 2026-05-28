@@ -16,6 +16,7 @@ variables:
     value: $(USER_NAME)
   - name: PASSWORD
     value: $(PASSWORD)
+    
 
 stages:
   - stage: Test
@@ -43,6 +44,7 @@ stages:
               SECRET_KEY: $(SECRET_KEY)
               USER_NAME: $(USER_NAME)
               PASSWORD: $(PASSWORD)
+              ENV_NAME: demo 
 
           - task: PublishTestResults@2
             displayName: 'Publish test results'
