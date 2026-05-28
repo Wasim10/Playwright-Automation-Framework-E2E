@@ -25,7 +25,7 @@ stages:
           - script: npx playwright install --with-deps chromium firefox
             displayName: 'Install Playwright browsers'
 
-          - script: ENV_NAME=demo npx playwright test --project=chromium --project=firefox --ignore=tests/temp-test.spec.ts
+          - script: ENV_NAME=demo npx playwright test --project=chromium --project=firefox --grep-invert "Sample Test"
             displayName: 'Run Playwright tests'
             env:
               BASE_URL: $(BASE_URL)
